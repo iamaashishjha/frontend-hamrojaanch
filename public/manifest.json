@@ -1,0 +1,18 @@
+{
+  "name": "HamroJaanch",
+  "short_name": "HamroJaanch",
+  "description": "Secure online proctored exams — browse, take exams, view results.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ]
+}

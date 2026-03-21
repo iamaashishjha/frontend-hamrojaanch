@@ -1,0 +1,441 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary - Calm, trustworthy blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 55%;
+    --primary-light: 217 91% 95%;
+    
+    /* Background & Surfaces */
+    --background: 220 20% 98%;
+    --foreground: 220 20% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+    
+    /* Secondary - Soft gray-blue */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 20%;
+    
+    /* Muted - Subtle backgrounds */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 46%;
+    
+    /* Accent */
+    --accent: 217 91% 97%;
+    --accent-foreground: 217 91% 40%;
+    
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 95%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 15%;
+    --warning-light: 38 92% 95%;
+    
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+    --danger-light: 0 84% 97%;
+    
+    /* Semantic */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+    
+    --radius: 0.75rem;
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 20%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
+    
+    /* Exam-specific tokens */
+    --exam-timer: 217 91% 60%;
+    --exam-timer-warning: 38 92% 50%;
+    --exam-timer-critical: 0 84% 60%;
+    --ai-normal: 142 76% 36%;
+    --ai-warning: 38 92% 50%;
+    --ai-review: 0 84% 60%;
+    --recording: 0 84% 60%;
+
+    /* ========================================================= */
+    /* 🎨 Exam Experience Design Tokens (from reference mock)   */
+    /* ========================================================= */
+
+    /* Background gradient for live exam workspace */
+    --bg-gradient: linear-gradient(
+      135deg,
+      #EEF2FF 0%,
+      #E0E7FF 35%,
+      #DCE6FF 65%,
+      #F8FAFF 100%
+    );
+
+    /* Card styling */
+    --card-bg-elevated: #FFFFFF;
+    --card-shadow-soft:
+      0px 4px 12px rgba(16, 24, 40, 0.06),
+      0px 2px 4px rgba(16, 24, 40, 0.04);
+    --card-shadow-deep:
+      0px 8px 24px rgba(16, 24, 40, 0.08);
+    --card-radius-strong: 16px;
+
+    /* Buttons */
+    --btn-primary-bg: #2563EB;
+    --btn-primary-hover: #1D4ED8;
+    --btn-primary-active: #1E40AF;
+    --btn-primary-text: #FFFFFF;
+    --btn-disabled-bg: #CBD5E1;
+    --btn-disabled-text: #64748B;
+    --btn-radius-strong: 12px;
+
+    --btn-secondary-bg: #F1F5F9;
+    --btn-secondary-hover: #E2E8F0;
+    --btn-secondary-text: #334155;
+    --btn-secondary-border: #E2E8F0;
+
+    --btn-danger-bg: #EF4444;
+    --btn-danger-hover: #DC2626;
+    --btn-danger-text: #FFFFFF;
+
+    /* Question navigator states */
+    --nav-active-bg: #2563EB;
+    --nav-active-text: #FFFFFF;
+    --nav-active-border: #1D4ED8;
+
+    --nav-answered-bg: #DBEAFE;
+    --nav-answered-text: #1E40AF;
+    --nav-answered-border: #93C5FD;
+
+    --nav-unanswered-bg: #F1F5F9;
+    --nav-unanswered-text: #475569;
+    --nav-unanswered-border: #E2E8F0;
+
+    --nav-flagged-bg: #FEF3C7;
+    --nav-flagged-text: #92400E;
+    --nav-flagged-border: #FCD34D;
+
+    --nav-ai-flagged-bg: #FEE2E2;
+    --nav-ai-flagged-text: #991B1B;
+    --nav-ai-flagged-border: #FCA5A5;
+
+    /* Alerts */
+    --alert-warning-bg: #FFF7ED;
+    --alert-warning-text: #9A3412;
+    --alert-warning-border: #FDBA74;
+
+    --alert-danger-bg: #FEE2E2;
+    --alert-danger-text: #7F1D1D;
+    --alert-danger-border: #FCA5A5;
+
+    /* Timer colors for text / accents */
+    --timer-normal: #10B981;
+    --timer-warning: #F59E0B;
+    --timer-critical: #EF4444;
+
+    /* Typography */
+    --font-family-main: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-weight-question: 600;
+    --font-weight-option: 500;
+    --font-weight-label: 400;
+
+    /* Radius */
+    --radius-card: 16px;
+    --radius-button: 12px;
+    --radius-navigator: 10px;
+    --radius-circle: 999px;
+  }
+
+  .dark {
+    --primary: 217 91% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 70%;
+    --primary-light: 217 40% 20%;
+    
+    --background: 220 20% 8%;
+    --foreground: 220 10% 95%;
+    --card: 220 20% 12%;
+    --card-foreground: 220 10% 95%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 10% 95%;
+    
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 220 10% 90%;
+    
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 60%;
+    
+    --accent: 217 40% 18%;
+    --accent-foreground: 217 91% 75%;
+    
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 40% 15%;
+    
+    --warning: 38 90% 55%;
+    --warning-foreground: 0 0% 10%;
+    --warning-light: 38 40% 15%;
+    
+    --danger: 0 80% 55%;
+    --danger-foreground: 0 0% 100%;
+    --danger-light: 0 40% 15%;
+    
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 220 15% 22%;
+    --input: 220 15% 22%;
+    --ring: 217 91% 65%;
+    
+    --sidebar-background: 220 20% 10%;
+    --sidebar-foreground: 220 10% 90%;
+    --sidebar-primary: 217 91% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 220 10% 90%;
+    --sidebar-border: 220 15% 22%;
+    --sidebar-ring: 217 91% 65%;
+    
+    --exam-timer: 217 91% 65%;
+    --exam-timer-warning: 38 90% 55%;
+    --exam-timer-critical: 0 80% 55%;
+    --ai-normal: 142 70% 45%;
+    --ai-warning: 38 90% 55%;
+    --ai-review: 0 80% 55%;
+    --recording: 0 80% 55%;
+  }
+}
+
+@layer components {
+  .public-page-scale {
+    /* Fallback reduction when :has is unsupported */
+    font-size: 0.9375rem;
+  }
+}
+
+@supports selector(:has(*)) {
+  :root:has(.public-page-scale) {
+    /* Reduce root scale ~1pt so rem-based sizes shrink on public pages */
+    font-size: 15px;
+  }
+
+  .public-page-scale {
+    font-size: 1rem;
+  }
+}
+
+@layer base {
+  html.hj-admin-font-scale {
+    font-size: calc(100% - 2pt);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Focus states for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  /* Single unified exam block – one card containing navigator, question, monitoring */
+  .exam-single-block {
+    @apply rounded-2xl border border-border flex items-start;
+    background-color: var(--card-bg-elevated);
+    box-shadow: var(--card-shadow-soft);
+  }
+  .exam-single-block .exam-card {
+    box-shadow: none;
+    border-radius: 0.5rem;
+  }
+
+  /* Card styles */
+  .exam-card {
+    @apply bg-card rounded-xl border border-border;
+    background-color: var(--card-bg-elevated);
+    border-radius: var(--card-radius-strong);
+    box-shadow: var(--card-shadow-soft);
+  }
+  
+  .exam-card-elevated {
+    @apply bg-card rounded-xl border border-border;
+    background-color: var(--card-bg-elevated);
+    border-radius: var(--card-radius-strong);
+    box-shadow: var(--card-shadow-deep);
+  }
+  
+  /* Status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+  
+  .status-dot-success {
+    @apply bg-success;
+  }
+  
+  .status-dot-warning {
+    @apply bg-warning animate-pulse;
+  }
+  
+  .status-dot-danger {
+    @apply bg-danger animate-pulse;
+  }
+  
+  /* Timer styles */
+  .timer-normal {
+    color: var(--timer-normal);
+  }
+  
+  .timer-warning {
+    color: var(--timer-warning);
+  }
+  
+  .timer-critical {
+    color: var(--timer-critical);
+    @apply animate-pulse;
+  }
+  
+  /* Recording indicator */
+  .recording-indicator {
+    @apply flex items-center gap-2 px-3 py-1.5 rounded-full bg-danger/10 text-danger text-sm font-medium;
+  }
+  
+  .recording-dot {
+    @apply w-2 h-2 rounded-full bg-danger animate-pulse;
+  }
+  
+  /* Question navigation */
+  .question-nav-item {
+    @apply w-10 h-10 flex items-center justify-center text-sm font-medium transition-all;
+    border-radius: var(--radius-navigator);
+  }
+  
+  .question-nav-unanswered {
+    background-color: var(--nav-unanswered-bg);
+    color: var(--nav-unanswered-text);
+    border: 1px solid var(--nav-unanswered-border);
+  }
+  
+  .question-nav-answered {
+    background-color: var(--nav-answered-bg);
+    color: var(--nav-answered-text);
+    border: 1px solid var(--nav-answered-border);
+  }
+  
+  .question-nav-flagged {
+    background-color: var(--nav-flagged-bg);
+    color: var(--nav-flagged-text);
+    border: 1px solid var(--nav-flagged-border);
+  }
+  
+  .question-nav-current {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-text);
+    border: 1px solid var(--nav-active-border);
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+
+  /* Exam page root – gradient + typography from reference mock */
+  .exam-page-root {
+    background-image: var(--bg-gradient);
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: var(--font-family-main);
+  }
+
+  /* Primary submit button styling (live exam only) */
+  .exam-submit-button {
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border-radius: var(--btn-radius-strong);
+    box-shadow: var(--card-shadow-deep);
+  }
+
+  .exam-submit-button:hover:not(:disabled) {
+    background-color: var(--btn-primary-hover);
+  }
+
+  .exam-submit-button:active:not(:disabled) {
+    background-color: var(--btn-primary-active);
+  }
+
+  .exam-submit-button:disabled {
+    background-color: var(--btn-disabled-bg);
+    color: var(--btn-disabled-text);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* End exam secondary button */
+  .exam-end-button {
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border-radius: var(--btn-radius-strong);
+    border: 1px solid var(--btn-secondary-border);
+  }
+
+  .exam-end-button:hover {
+    background-color: var(--btn-secondary-hover);
+  }
+}
+
+@layer utilities {
+  /* Spacing scale (8px base) */
+  .gap-1 { gap: 0.25rem; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-3 { gap: 0.75rem; }
+  .gap-4 { gap: 1rem; }
+  .gap-6 { gap: 1.5rem; }
+  .gap-8 { gap: 2rem; }
+  
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .animate-slide-right {
+    animation: slideRight 0.3s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+}
