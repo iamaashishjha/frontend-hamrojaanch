@@ -31,6 +31,12 @@ export const paymentProviders: PaymentProviderMeta[] = [
     supports: { refunds: true, webhooks: true, asyncCapture: true },
   },
   {
+    id: "esewa",
+    label: "eSewa",
+    description: "Nepal wallet redirect flow with server-side verification.",
+    supports: { refunds: false, webhooks: false, asyncCapture: true },
+  },
+  {
     id: "manual",
     label: "Manual",
     description: "Offline payments confirmed by admin.",

@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Award,
   BadgeCheck,
-  Bell,
   BookOpen,
   Calendar,
   ChevronRight,
@@ -23,6 +22,7 @@ import {
 import LogoMark from "@/components/LogoMark";
 import BrandText from "@/components/BrandText";
 import { StudentNavUser } from "@/components/StudentNavUser";
+import { StudentNotificationsBell } from "@/components/StudentNotificationsBell";
 import { useSiteSettings } from "@/components/SiteSettingsProvider";
 import { get } from "@/lib/apiClient";
 import { getStoredUser } from "@/lib/auth-api";
@@ -244,9 +244,7 @@ export default function StudentDashboard() {
           })}
         </nav>
         <div className="sd-header-actions">
-          <Link to="/student-notifications" className="sd-icon-btn" aria-label="Notifications">
-            <Bell size={20} />
-          </Link>
+          <StudentNotificationsBell triggerClassName="sd-icon-btn" iconSize={20} />
           <StudentNavUser />
         </div>
       </header>

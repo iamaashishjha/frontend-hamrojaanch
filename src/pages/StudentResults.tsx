@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   BadgeCheck,
-  Bell,
   CalendarDays,
   ChevronRight,
   FileText,
@@ -13,6 +12,7 @@ import {
 import LogoMark from "@/components/LogoMark";
 import BrandText from "@/components/BrandText";
 import { StudentNavUser } from "@/components/StudentNavUser";
+import { StudentNotificationsBell } from "@/components/StudentNotificationsBell";
 import { useSiteSettings } from "@/components/SiteSettingsProvider";
 import { get } from "@/lib/apiClient";
 import { getEvidenceAccess, recordEvidenceAccessAttempt } from "@/lib/exams-module-api";
@@ -221,9 +221,7 @@ export default function StudentResults() {
           </nav>
           <div className="results-profile">
             <StudentNavUser />
-            <button type="button" className="profile-icon">
-              <Bell size={18} />
-            </button>
+            <StudentNotificationsBell triggerClassName="profile-icon" iconSize={18} />
           </div>
         </header>
 
@@ -304,5 +302,4 @@ export default function StudentResults() {
     </div>
   );
 }
-
 

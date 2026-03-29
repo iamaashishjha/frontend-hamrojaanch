@@ -52,7 +52,17 @@ export async function createPaymentIntent(input: {
   orderId: string;
   provider: PaymentProvider;
 }): Promise<PaymentIntent> {
-  const res = await post<{ intentId: string; status: string }>(
+  const res = await post<{
+    intentId: string;
+    status: string;
+    nextAction?: {
+      type: "redirect_form";
+      provider: "esewa";
+      method: "POST";
+      url: string;
+      fields: Record<string, string>;
+    };
+  }>(
     "/orders/payments/intents",
     { orderId: input.orderId, provider: input.provider },
   );
@@ -67,7 +77,26 @@ export async function createPaymentIntent(input: {
     currency: "NPR",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    nextAction: res.nextAction,
   };
+}
+
+export async function verifyEsewaPaymentIntent(intentId: string): Promise<{
+  intentId: string;
+  status: string;
+  refId: string | null;
+  orderId: string;
+  orderStatus: string;
+  examId: string | null;
+}> {
+  return post<{
+    intentId: string;
+    status: string;
+    refId: string | null;
+    orderId: string;
+    orderStatus: string;
+    examId: string | null;
+  }>("/orders/payments/esewa/verify", { intentId });
 }
 
 /**

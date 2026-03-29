@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { User } from "lucide-react";
 import {
@@ -7,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getStoredUser, logout } from "@/lib/auth-api";
+import { resolveApiAssetUrl } from "@/lib/file-vault-api";
 
 /**
  * Display name from user: "First Last" → "First L." or fallback "Student".
@@ -21,6 +23,12 @@ function displayName(name: string | null | undefined): string {
 export function StudentNavUser() {
   const user = getStoredUser();
   const name = displayName(user?.name);
+  const avatarSrc = user?.avatarUrl ? resolveApiAssetUrl(user.avatarUrl) : null;
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [avatarSrc]);
 
   const handleLogout = () => {
     logout("/auth");
@@ -35,7 +43,16 @@ export function StudentNavUser() {
           aria-label="Account menu"
         >
           <div className="profile-avatar">
-            <User size={18} />
+            {avatarSrc && !avatarLoadFailed ? (
+              <img
+                src={avatarSrc}
+                alt={`${name} avatar`}
+                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                onError={() => setAvatarLoadFailed(true)}
+              />
+            ) : (
+              <User size={18} />
+            )}
           </div>
           <div>
             <strong>{name}</strong>

@@ -1,19 +1,22 @@
 /**
  * Auth API — real backend calls for login, register, profile.
- *
- * WHY: Previously the frontend used localStorage flags ("hj_admin"="true")
- *      with zero validation. Now we call the real backend, store a JWT,
- *      and verify it on protected routes.
  */
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
-const API_BASE_URL = rawBaseUrl ? rawBaseUrl.replace(/\/$/, "") : "";
+import { runtimeConfig } from "@/config/runtime";
+import {
+  clearAuthStorage,
+  readToken,
+  readUser,
+  writeAuth,
+  writeLegacyRoleHints,
+  writeUser,
+} from "@/lib/auth-storage";
 
-// ── localStorage keys ──
+const API_BASE_URL = runtimeConfig.apiBaseUrl;
+
 export const TOKEN_KEY = "hj_token";
 export const USER_KEY = "hj_user";
 
-// ── Types ──
 export interface AuthUser {
   id: string;
   email: string;
@@ -40,11 +43,8 @@ export interface RegisterPayload {
   password: string;
 }
 
-// ── Helpers ──
-
-/** Get stored JWT token */
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return readToken();
 }
 
 function decodeTokenPayload(token: string): { role?: string; exp?: number } | null {
@@ -60,17 +60,10 @@ function decodeTokenPayload(token: string): { role?: string; exp?: number } | nu
   }
 }
 
-/** Get stored user object */
 export function getStoredUser(): AuthUser | null {
-  try {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  } catch {
-    return null;
-  }
+  return readUser<AuthUser>();
 }
 
-/** Check if user is authenticated (has a token) */
 export function isAuthenticated(): boolean {
   const token = getToken();
   if (!token) return false;
@@ -79,7 +72,6 @@ export function isAuthenticated(): boolean {
   return Date.now() < payload.exp * 1000;
 }
 
-/** Check if authenticated user has one of the given roles */
 export function hasRole(...roles: string[]): boolean {
   const token = getToken();
   const tokenRole = token ? decodeTokenPayload(token)?.role : undefined;
@@ -88,38 +80,14 @@ export function hasRole(...roles: string[]): boolean {
   return roles.some((r) => r.toLowerCase() === String(role).toLowerCase());
 }
 
-/** Store auth data in localStorage after successful login/register */
 function persistAuth(data: AuthResponse): void {
-  localStorage.setItem(TOKEN_KEY, data.token);
-  localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-
-  // WHY: Keep legacy keys for backward compatibility with components
-  // that still read these (gradual migration)
-  if (["admin", "teacher", "proctor"].includes(data.user.role)) {
-    localStorage.setItem("hj_admin", "true");
-    const roleName =
-      data.user.role === "admin"
-        ? "Admin"
-        : data.user.role === "teacher"
-        ? "Teacher"
-        : "Organization";
-    localStorage.setItem("hj_admin_role", roleName);
-  }
-  if (data.user.role === "student") {
-    localStorage.setItem("hj_registered", "true");
-  }
+  writeAuth(data.token, data.user as Record<string, unknown>);
+  writeLegacyRoleHints(data.user.role);
 }
 
-/** Clear all auth data on logout */
 export function clearAuth(): void {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-  localStorage.removeItem("hj_admin");
-  localStorage.removeItem("hj_admin_role");
-  localStorage.removeItem("hj_registered");
+  clearAuthStorage();
 }
-
-// ── API calls ──
 
 function isNetworkError(err: unknown): boolean {
   if (err instanceof TypeError && err.message === "Failed to fetch") return true;
@@ -168,10 +136,6 @@ async function authFetch<T>(
   return body as T;
 }
 
-/**
- * Login with email + password.
- * Stores JWT + user in localStorage on success.
- */
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
   if (!API_BASE_URL) {
     throw new Error(
@@ -186,10 +150,6 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
   return data;
 }
 
-/**
- * Register a new account.
- * Stores JWT + user in localStorage on success.
- */
 export async function register(
   payload: RegisterPayload
 ): Promise<AuthResponse> {
@@ -206,13 +166,9 @@ export async function register(
   return data;
 }
 
-/**
- * Get current user profile from backend (validates token).
- */
 export async function getMe(): Promise<AuthUser> {
   const { user } = await authFetch<{ user: AuthUser }>("/auth/me");
-  // Update stored user with fresh data
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  writeUser(user as Record<string, unknown>);
   return user;
 }
 
@@ -222,21 +178,15 @@ export interface UpdateMePayload {
   avatarUrl?: string | null;
 }
 
-/**
- * Update current user profile (basic fields only).
- */
 export async function updateMe(payload: UpdateMePayload): Promise<AuthUser> {
   const { user } = await authFetch<{ user: AuthUser }>("/auth/me", {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  writeUser(user as Record<string, unknown>);
   return user;
 }
 
-/**
- * Logout — clear tokens and optionally redirect.
- */
 export function logout(redirectTo?: string): void {
   if (API_BASE_URL) {
     void fetch(`${API_BASE_URL}/auth/logout`, {

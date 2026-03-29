@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Opens at **http://localhost:8080**.
+Opens at **http://localhost:8081**.
 
 ## Environment Variables
 
@@ -25,6 +25,7 @@ Copy `.env.example` to `.env`:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `VITE_API_BASE_URL` | _(empty = mock mode)_ | Backend API URL |
+| `VITE_SERVING_URL` | `http://localhost:8081` | Frontend public serving origin |
 | `VITE_SIGNALING_URL` | `ws://localhost:3001/ws` | WebSocket signaling |
 | `VITE_SIGNALING_HTTP_URL` | `http://localhost:3001` | Token endpoint |
 | `VITE_ICE_SERVERS` | Google STUN | STUN/TURN config |
@@ -37,7 +38,7 @@ Copy `.env.example` to `.env`:
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start dev server (port 8080) |
+| `npm run dev` | Start dev server (port 8081) |
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Preview production build |
 | `npm test` | Run tests (Vitest) |

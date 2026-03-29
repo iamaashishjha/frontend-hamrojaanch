@@ -1,4 +1,4 @@
-export type PaymentProvider = "stripe" | "paypal" | "razorpay" | "manual";
+export type PaymentProvider = "stripe" | "paypal" | "razorpay" | "manual" | "esewa" | "khalti";
 export type OrderStatus = "pending" | "paid" | "cancelled" | "refunded";
 export type PaymentStatus = "created" | "processing" | "succeeded" | "failed";
 export type EntitlementStatus = "active" | "expired" | "revoked";
@@ -33,6 +33,18 @@ export interface PaymentIntent {
   currency: string;
   createdAt: string;
   updatedAt: string;
+  nextAction?: {
+    type: "redirect_form";
+    provider: "esewa";
+    method: "POST";
+    url: string;
+    fields: Record<string, string>;
+  } | {
+    type: "redirect_url";
+    provider: "khalti";
+    method: "GET";
+    url: string;
+  };
 }
 
 export interface Entitlement {

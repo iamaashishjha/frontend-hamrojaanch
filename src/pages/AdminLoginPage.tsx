@@ -4,7 +4,8 @@ import { Facebook, Linkedin, Lock, Mail, Twitter } from "lucide-react";
 import LogoMark from "@/components/LogoMark";
 import BrandText from "@/components/BrandText";
 import { useSiteSettings } from "@/components/SiteSettingsProvider";
-import { login, isAuthenticated, hasRole, getStoredUser } from "@/lib/auth-api";
+import { clearAuth, login, isAuthenticated, hasRole, getStoredUser } from "@/lib/auth-api";
+import { resolveSafeNextPath } from "@/lib/navigation";
 import "./AdminLoginPage.css";
 
 export default function AdminLoginPage() {
@@ -40,7 +41,7 @@ export default function AdminLoginPage() {
     const params = new URLSearchParams(location.search);
     // If a specific next is provided (deep link), honour it.
     // Otherwise pick dashboard based on role.
-    return params.get("next") || getHomeRouteForRole();
+    return resolveSafeNextPath(params.get("next"), getHomeRouteForRole());
   }, [location.search, role]);
 
   const resolvedNext = useMemo(() => {
@@ -71,10 +72,7 @@ export default function AdminLoginPage() {
       if (!["admin", "teacher", "proctor"].includes(data.user.role)) {
         setError("Access denied. This portal is for administrators, teachers, and proctors only.");
         // Clear the token since this user shouldn't be here
-        localStorage.removeItem("hj_token");
-        localStorage.removeItem("hj_user");
-        localStorage.removeItem("hj_admin");
-        localStorage.removeItem("hj_admin_role");
+        clearAuth();
         return;
       }
 

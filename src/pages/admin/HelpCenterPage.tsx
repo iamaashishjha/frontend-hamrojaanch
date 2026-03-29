@@ -333,6 +333,22 @@ function videoStatusVariant(status: "published" | "hidden") {
   return status === "published" ? "success-light" : "secondary";
 }
 
+function toSafeHref(rawHref: string): string {
+  const href = rawHref.trim();
+  if (!href) return "#";
+  if (href.startsWith("/") || href.startsWith("#")) return href;
+  try {
+    const parsed = new URL(href, "https://hamrojaanch.local");
+    const protocol = parsed.protocol.toLowerCase();
+    if (protocol === "http:" || protocol === "https:" || protocol === "mailto:" || protocol === "tel:") {
+      return href;
+    }
+  } catch {
+    // Fall through.
+  }
+  return "#";
+}
+
 function markdownToHtml(markdown: string): string {
   const escaped = markdown
     .replace(/&/g, "&amp;")
@@ -345,7 +361,7 @@ function markdownToHtml(markdown: string): string {
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/`(.*?)`/g, "<code>$1</code>")
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[(.*?)\]\((.*?)\)/g, (_match, label, href) => `<a href="${toSafeHref(href)}">${label}</a>`)
     .replace(/^- (.*)$/gm, "<li>$1</li>")
     .replace(/\n/g, "<br/>");
 }

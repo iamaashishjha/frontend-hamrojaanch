@@ -61,12 +61,12 @@
   color: #0f61c8;
 }
 
-.nav-item.active {
+.all-exams-links .nav-item.active {
   color: #0f61c8;
   font-weight: 700;
 }
 
-.btn {
+.all-exams-page .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -82,29 +82,29 @@
   cursor: pointer;
 }
 
-.btn:hover {
+.all-exams-page .btn:hover {
   transform: translateY(-1px);
 }
 
-.btn-small {
+.all-exams-page .btn-small {
   padding: 10px 20px;
   font-size: 0.96rem;
 }
 
-.btn-primary {
+.all-exams-page .btn-primary {
   background: linear-gradient(180deg, #26a772, #168758);
   border-color: #127b50;
   color: #f2fff8;
   box-shadow: 0 10px 18px rgba(22, 135, 88, 0.24);
 }
 
-.btn-outline {
+.all-exams-page .btn-outline {
   border-color: #2f72d0;
   color: #1d59b7;
   background: #f4f8ff;
 }
 
-.btn-warning {
+.all-exams-page .btn-warning {
   background: linear-gradient(180deg, #ff9e2f, #f17a00);
   border-color: #d96f00;
   color: #fff8ef;
@@ -123,8 +123,8 @@
   border-bottom: 1px solid #d6e2f5;
 }
 
-.hero-copy h1,
-.hero-card h2,
+.all-exams-page .hero-copy h1,
+.all-exams-page .hero-card h2,
 .filters-header h3,
 .grid-header h3,
 .pricing-band h2,
@@ -132,7 +132,7 @@
   font-family: "Sora", "Inter", system-ui, sans-serif;
 }
 
-.hero-eyebrow {
+.all-exams-page .hero-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -144,7 +144,7 @@
   font-size: 0.9rem;
 }
 
-.hero-copy h1 {
+.all-exams-page .hero-copy h1 {
   margin: 14px 0 14px;
   font-size: clamp(2.1rem, 2.6vw, 3rem);
   font-weight: 700;
@@ -152,26 +152,26 @@
   line-height: 1.15;
 }
 
-.hero-copy h1 span {
+.all-exams-page .hero-copy h1 span {
   display: block;
   color: #0e59b8;
 }
 
-.hero-copy p {
+.all-exams-page .hero-copy p {
   margin: 0 0 18px;
   font-size: 1.1rem;
   color: #254b87;
   line-height: 1.55;
 }
 
-.hero-metrics {
+.all-exams-page .hero-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
 
-.hero-metric {
+.all-exams-page .hero-metric {
   padding: 12px 14px;
   border-radius: 12px;
   background: #ffffff;
@@ -179,24 +179,24 @@
   box-shadow: 0 10px 20px rgba(24, 52, 97, 0.08);
 }
 
-.hero-metric strong {
+.all-exams-page .hero-metric strong {
   display: block;
   font-size: 1.2rem;
   color: #0f3c7b;
 }
 
-.hero-metric span {
+.all-exams-page .hero-metric span {
   font-size: 0.85rem;
   color: #4d6c9b;
 }
 
-.hero-actions {
+.all-exams-page .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-.hero-card {
+.all-exams-page .hero-card {
   background: #ffffff;
   border-radius: 14px;
   border: 1px solid #d4def2;
@@ -206,13 +206,13 @@
   gap: 16px;
 }
 
-.hero-card-header {
+.all-exams-page .hero-card-header {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
 
-.hero-card-tag {
+.all-exams-page .hero-card-tag {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 999px;
@@ -222,41 +222,41 @@
   font-weight: 700;
 }
 
-.hero-card-header h2 {
+.all-exams-page .hero-card-header h2 {
   margin: 8px 0 6px;
   font-size: 1.4rem;
   color: #113d7f;
 }
 
-.hero-card-header p {
+.all-exams-page .hero-card-header p {
   margin: 0;
   color: #476394;
   font-size: 0.95rem;
 }
 
-.hero-card-price {
+.all-exams-page .hero-card-price {
   text-align: right;
 }
 
-.hero-card-price span {
+.all-exams-page .hero-card-price span {
   display: block;
   font-size: 0.8rem;
   color: #6b86b6;
 }
 
-.hero-card-price strong {
+.all-exams-page .hero-card-price strong {
   font-size: 1.9rem;
   color: #138a5f;
 }
 
-.hero-card-badges {
+.all-exams-page .hero-card-badges {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
 }
 
-.hero-card-body {
+.all-exams-page .hero-card-body {
   display: grid;
   gap: 10px;
   padding: 12px;
@@ -265,7 +265,7 @@
   border: 1px solid #e2ecff;
 }
 
-.hero-card-row {
+.all-exams-page .hero-card-row {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -273,11 +273,11 @@
   color: #244679;
 }
 
-.hero-card-cta {
+.all-exams-page .hero-card-cta {
   width: 100%;
 }
 
-.hero-card-footer {
+.all-exams-page .hero-card-footer {
   display: flex;
   justify-content: space-between;
   font-size: 0.78rem;
@@ -749,6 +749,21 @@
   background: linear-gradient(165deg, #ffffff 0%, #edfdfb 100%);
 }
 
+.exam-tile-image {
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #dbe5f7;
+  background: #e9f1ff;
+}
+
+.exam-tile-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .pricing-band {
   padding: 32px 34px 26px;
   border-top: 1px solid #d8e3f5;
@@ -879,12 +894,25 @@
   font-size: 0.9rem;
 }
 
+@media (max-width: 1200px) {
+  .all-exams-nav,
+  .all-exams-hero,
+  .search-panel,
+  .category-strip,
+  .exams-layout,
+  .pricing-band,
+  .faq-band {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
 @media (max-width: 1100px) {
   .all-exams-hero {
     grid-template-columns: 1fr;
   }
 
-  .hero-metrics {
+  .all-exams-page .hero-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -896,6 +924,10 @@
     order: 2;
   }
 
+  .grid-actions {
+    flex-wrap: wrap;
+  }
+
   .exam-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -904,58 +936,173 @@
 @media (max-width: 900px) {
   .all-exams-nav {
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .all-exams-nav .brand {
+    font-size: 1.5rem;
+  }
+
+  .all-exams-nav > .btn {
+    margin-left: auto;
+    white-space: nowrap;
   }
 
   .all-exams-links {
-    flex-wrap: wrap;
-    justify-content: center;
+    order: 3;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
   }
 
-  .hero-metrics {
+  .all-exams-links .nav-item {
+    white-space: nowrap;
+  }
+
+  .all-exams-page .hero-metrics {
     grid-template-columns: 1fr;
   }
 
+  .exam-grid,
   .pricing-grid,
-  .faq-grid,
-  .exam-grid {
+  .faq-grid {
     grid-template-columns: 1fr;
+  }
+
+  .all-exams-footer .footer-links {
+    flex-wrap: wrap;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .all-exams-page {
-    padding: 20px 12px 40px;
+    padding: 18px 12px 36px;
   }
 
+  .all-exams-shell {
+    border-radius: 14px;
+  }
+
+  .all-exams-nav,
   .all-exams-hero,
   .search-panel,
   .category-strip,
   .exams-layout,
   .pricing-band,
-  .faq-band {
+  .faq-band,
+  .all-exams-footer {
     padding-left: 18px;
     padding-right: 18px;
   }
 
-  .hero-card-header {
+  .all-exams-page .hero-copy h1 {
+    font-size: clamp(1.8rem, 7vw, 2.3rem);
+  }
+
+  .all-exams-page .hero-copy p {
+    font-size: 1rem;
+  }
+
+  .all-exams-page .hero-card {
+    padding: 16px;
+  }
+
+  .all-exams-page .hero-card-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .all-exams-page .hero-card-price {
+    text-align: left;
+  }
+
+  .all-exams-page .hero-card-footer {
+    flex-wrap: wrap;
+    gap: 6px 14px;
   }
 
   .grid-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
   }
 
   .grid-actions {
     width: 100%;
-    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sort-btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
   }
 
   .all-exams-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .all-exams-page {
+    padding: 14px 10px 30px;
+  }
+
+  .all-exams-shell {
+    border-radius: 12px;
+  }
+
+  .all-exams-nav {
+    gap: 10px;
+  }
+
+  .all-exams-nav .brand {
+    font-size: 1.35rem;
+  }
+
+  .all-exams-nav > .btn,
+  .all-exams-page .hero-actions .btn,
+  .all-exams-page .hero-card-cta {
+    width: 100%;
+  }
+
+  .all-exams-page .hero-actions {
+    width: 100%;
+  }
+
+  .filter-pill,
+  .category-chip {
+    font-size: 0.8rem;
+    padding: 7px 11px;
+  }
+
+  .sort-btn {
+    flex: 1 1 100%;
+  }
+
+  .exam-tile {
+    padding: 14px;
+  }
+
+  .exam-tile-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tile-cta {
+    width: 100%;
+    text-align: center;
+  }
+
+  .pricing-band h2,
+  .faq-header h2 {
+    font-size: 1.6rem;
   }
 }
 

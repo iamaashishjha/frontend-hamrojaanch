@@ -6,19 +6,17 @@
  *      that hit the real backend. All module APIs import from here.
  */
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
-export const API_BASE = rawBaseUrl ? rawBaseUrl.replace(/\/$/, "") : "";
+import { runtimeConfig } from "@/config/runtime";
+import { readToken } from "@/lib/auth-storage";
 
-function getToken(): string | null {
-  return typeof window !== "undefined" ? localStorage.getItem("hj_token") : null;
-}
+export const API_BASE = runtimeConfig.apiBaseUrl;
 
 function buildHeaders(extra?: Record<string, string>): Record<string, string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...extra,
   };
-  const token = getToken();
+  const token = readToken();
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -47,7 +45,6 @@ async function request<T>(
   body?: unknown,
   queryParams?: Record<string, string | number | boolean | undefined | null>
 ): Promise<T> {
-  // Build query string from params (skip undefined/null)
   let url = `${API_BASE}${path}`;
   if (queryParams) {
     const qs = Object.entries(queryParams)
@@ -69,13 +66,10 @@ async function request<T>(
   const res = await fetch(url, options);
   if (!res.ok) return handleError(res);
 
-  // Some DELETE endpoints return 204 No Content
   if (res.status === 204) return {} as T;
 
   return res.json() as Promise<T>;
 }
-
-// ── Public helpers ──
 
 export function get<T>(path: string, params?: Record<string, string | number | boolean | undefined | null>): Promise<T> {
   return request<T>("GET", path, undefined, params);
@@ -102,7 +96,7 @@ export function del<T>(path: string): Promise<T> {
  * Does NOT set Content-Type header — browser sets it with boundary.
  */
 export async function upload<T>(path: string, formData: FormData): Promise<T> {
-  const token = getToken();
+  const token = readToken();
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
 

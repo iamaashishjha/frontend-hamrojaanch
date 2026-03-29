@@ -22,10 +22,10 @@ import { toast } from "@/components/ui/use-toast";
 import {
   getFileVaultAssetUrl,
   listFileVaultAssets,
+  resolveApiAssetUrl,
   type FileVaultAsset,
   updateFileVaultAssetStatus,
 } from "@/lib/file-vault-api";
-import { API_BASE } from "@/lib/apiClient";
 
 type StatusFilter = "all" | "pending_scan" | "safe" | "quarantined";
 
@@ -105,8 +105,7 @@ export default function FileVaultPage() {
   const handleOpen = async (id: string) => {
     try {
       const url = await getFileVaultAssetUrl(id);
-      const full = url.startsWith("http") ? url : `${API_BASE}${url}`;
-      window.open(full, "_blank", "noopener,noreferrer");
+      window.open(resolveApiAssetUrl(url), "_blank", "noopener,noreferrer");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -384,4 +383,3 @@ export default function FileVaultPage() {
     </div>
   );
 }
-

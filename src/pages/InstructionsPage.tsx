@@ -11,7 +11,7 @@ import type { AdminExam } from "@/lib/exams-module-types";
 import { getExamAccessDecision } from "@/lib/payments-api";
 import { useExamSession } from "@/hooks/useExamSession";
 import type { AccessDecision } from "@/lib/payments-types";
-import { getStoredUser } from "@/lib/auth-api";
+import { getStoredUser, isAuthenticated } from "@/lib/auth-api";
 
 const rules = [
   {
@@ -78,7 +78,7 @@ export default function InstructionsPage() {
       try {
         const record = await getExam(examId);
         setExam(record);
-        const isLoggedIn = typeof window !== "undefined" && window.localStorage.getItem("hj_registered") === "true";
+        const isLoggedIn = isAuthenticated();
         const decision = await getExamAccessDecision(examId, session.email || null, isLoggedIn);
         setAccessDecision(decision);
       } finally {

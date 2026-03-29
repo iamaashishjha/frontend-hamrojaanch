@@ -2,9 +2,10 @@ import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import {
   BadgeCheck,
-  Bell,
   CalendarDays,
+  Camera,
   CheckCircle2,
+  Eye,
   FileText,
   Globe,
   Lock,
@@ -16,8 +17,16 @@ import {
 import LogoMark from "@/components/LogoMark";
 import BrandText from "@/components/BrandText";
 import { StudentNavUser } from "@/components/StudentNavUser";
+import { StudentNotificationsBell } from "@/components/StudentNotificationsBell";
 import { useSiteSettings } from "@/components/SiteSettingsProvider";
 import { getStoredUser, getMe, updateMe } from "@/lib/auth-api";
+import {
+  getFileVaultAssetUrl,
+  listFileVaultAssets,
+  resolveApiAssetUrl,
+  uploadFileToVault,
+  type FileVaultAsset,
+} from "@/lib/file-vault-api";
 import { toast } from "sonner";
 import "./StudentProfile.css";
 
@@ -35,6 +44,7 @@ const credentials = [
 
 export default function StudentProfile() {
   const storedUser = getStoredUser();
+  const userId = storedUser?.id ?? "me";
   const [profile, setProfile] = useState({
     name: storedUser?.name || "",
     email: storedUser?.email || "",
@@ -46,11 +56,38 @@ export default function StudentProfile() {
     language: "English",
     timeZone: "Asia/Kathmandu (GMT+5:45)",
   });
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(storedUser?.avatarUrl ?? null);
   const [saved, setSaved] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [idDocs, setIdDocs] = useState<FileVaultAsset[]>([]);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [idUploading, setIdUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const idInputRef = useRef<HTMLInputElement | null>(null);
   const { settings } = useSiteSettings();
   const footerLinks = settings.footer.links.filter((link) => link.label && link.href);
+  const initials = profile.name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "S";
+
+  const loadMyIdDocs = async () => {
+    if (!storedUser?.id) return;
+    try {
+      const result = await listFileVaultAssets({
+        kind: "id_doc",
+        q: `students/${storedUser.id}/id-documents`,
+        page: 1,
+        pageSize: 10,
+      });
+      setIdDocs(result.items);
+    } catch {
+      setIdDocs([]);
+    }
+  };
 
   // Hydrate profile from backend + any locally stored student profile extras
   useEffect(() => {
@@ -69,11 +106,16 @@ export default function StudentProfile() {
           phone: base.phone || prev.phone || "",
           ...(extras || {}),
         }));
+        setAvatarUrl(base.avatarUrl ?? null);
       } catch (err) {
         // If backend is unreachable, keep using storedUser / defaults
       }
     };
     void load();
+  }, [storedUser?.id]);
+
+  useEffect(() => {
+    void loadMyIdDocs();
   }, [storedUser?.id]);
 
   const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -95,12 +137,83 @@ export default function StudentProfile() {
   };
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    idInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUploadClick = () => {
+    avatarInputRef.current?.click();
+  };
+
+  const handleAvatarFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    setUploadedFile(file ? file.name : null);
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      event.target.value = "";
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      let uploaded: { asset: FileVaultAsset; url: string };
+      try {
+        uploaded = await uploadFileToVault({
+          file,
+          kind: "profile_avatar",
+          prefix: `students/${userId}/profile-avatar`,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message.toLowerCase() : "";
+        if (!message.includes("invalid file kind")) throw err;
+        // Backward compatibility for older backend builds that do not yet allow "profile_avatar".
+        uploaded = await uploadFileToVault({
+          file,
+          kind: "id_doc",
+          prefix: `students/${userId}/profile-avatar`,
+        });
+      }
+      await updateMe({ avatarUrl: uploaded.url });
+      setAvatarUrl(uploaded.url);
+      toast.success("Profile photo updated.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not upload profile photo.";
+      toast.error(message);
+    } finally {
+      setAvatarUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIdUploading(true);
+    try {
+      await uploadFileToVault({
+        file,
+        kind: "id_doc",
+        prefix: `students/${userId}/id-documents`,
+      });
+      setUploadedFile(file.name);
+      await loadMyIdDocs();
+      toast.success("ID uploaded. You and admins can view it from File Vault.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not upload ID.";
+      toast.error(message);
+    } finally {
+      setIdUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  const handleOpenId = async (assetId: string) => {
+    try {
+      const url = await getFileVaultAssetUrl(assetId);
+      window.open(resolveApiAssetUrl(url), "_blank", "noopener,noreferrer");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not open uploaded ID.";
+      toast.error(message);
+    }
   };
 
   return (
@@ -119,16 +232,23 @@ export default function StudentProfile() {
           </nav>
           <div className="profile-actions">
             <StudentNavUser />
-            <button type="button" className="profile-bell">
-              <Bell size={18} />
-            </button>
+            <StudentNotificationsBell triggerClassName="profile-bell" iconSize={18} />
           </div>
         </header>
 
         <section className="profile-hero">
           <div className="hero-card">
             <div className="hero-avatar">
-              <span>SM</span>
+              {avatarUrl ? (
+                <img
+                  className="hero-avatar-image"
+                  src={resolveApiAssetUrl(avatarUrl)}
+                  alt={`${profile.name} profile`}
+                  onError={() => setAvatarUrl(null)}
+                />
+              ) : (
+                <span>{initials}</span>
+              )}
             </div>
             <div className="hero-info">
               <p className="eyebrow">Student Profile</p>
@@ -151,18 +271,37 @@ export default function StudentProfile() {
                 <a href="#edit-profile" className="btn btn-primary">
                   Edit Profile
                 </a>
+                <button type="button" className="btn btn-outline" onClick={handleAvatarUploadClick} disabled={avatarUploading}>
+                  <Camera size={14} /> {avatarUploading ? "Uploading..." : "Change Photo"}
+                </button>
                 <button type="button" className="btn btn-outline" onClick={handleUploadClick}>
-                  Upload ID
+                  {idUploading ? "Uploading..." : "Upload ID"}
                 </button>
               </div>
               <input
-                ref={fileInputRef}
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarFileChange}
+                className="file-input"
+              />
+              <input
+                ref={idInputRef}
                 type="file"
                 accept="image/*,application/pdf"
                 onChange={handleFileChange}
                 className="file-input"
               />
               {uploadedFile && <p className="upload-note">Selected: {uploadedFile}</p>}
+              {idDocs.length > 0 ? (
+                <button
+                  type="button"
+                  className="upload-link"
+                  onClick={() => void handleOpenId(idDocs[0].id)}
+                >
+                  <Eye size={14} /> View latest uploaded ID
+                </button>
+              ) : null}
             </div>
           </div>
           <div className="hero-stats">
@@ -382,5 +521,3 @@ export default function StudentProfile() {
     </div>
   );
 }
-
-

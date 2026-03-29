@@ -42,7 +42,7 @@ import {
 } from "@/lib/exams-module-api";
 import type { AccessDecision } from "@/lib/payments-types";
 import { createPublisher, type LiveStatus } from "@/lib/live-proctoring";
-import { getStoredUser } from "@/lib/auth-api";
+import { getStoredUser, isAuthenticated } from "@/lib/auth-api";
 import { cn } from "@/lib/utils";
 
 export default function LiveExamPage() {
@@ -119,8 +119,7 @@ export default function LiveExamPage() {
     const loadDecision = async () => {
       setAccessLoading(true);
       try {
-        const isLoggedIn =
-          typeof window !== "undefined" && window.localStorage.getItem("hj_registered") === "true";
+        const isLoggedIn = isAuthenticated();
         const decision = await getExamAccessDecision(examId, session.email || null, isLoggedIn);
         setAccessDecision(decision);
       } finally {

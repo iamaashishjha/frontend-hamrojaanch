@@ -16,6 +16,7 @@ import { useSiteSettings } from "@/components/SiteSettingsProvider";
 import "./AuthPage.css";
 import { useExamSession } from "@/hooks/useExamSession";
 import { login, register } from "@/lib/auth-api";
+import { resolveSafeNextPath } from "@/lib/navigation";
 
 const highlights = [
   { label: "AI & Live Proctoring", icon: ShieldCheck },
@@ -45,7 +46,7 @@ export default function AuthPage() {
   const next = useMemo(() => {
     const params = new URLSearchParams(location.search);
     // Exam deep-links can still pass ?next=/system-check&examId=...
-    return params.get("next");
+    return resolveSafeNextPath(params.get("next"), "");
   }, [location.search]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

@@ -245,6 +245,14 @@
     font-size: calc(100% - 2pt);
   }
 
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   * {
     @apply border-border;
   }

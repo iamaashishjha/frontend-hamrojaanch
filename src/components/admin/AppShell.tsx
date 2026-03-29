@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import {
   Award,
   BarChart3,
@@ -38,6 +39,9 @@ import {
 import LogoMark from "@/components/LogoMark";
 import BrandText from "@/components/BrandText";
 import { logout, getStoredUser } from "@/lib/auth-api";
+import { getEvaluateDashboard } from "@/lib/evaluate-api";
+import { listNotifications } from "@/lib/notifications-api";
+import type { NotificationItem } from "@/lib/notifications-types";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -75,7 +79,7 @@ const primaryNav: NavItem[] = [
   { label: "Question Bank", to: "/admin/question-bank", icon: BookOpen },
   { label: "Candidates", to: "/candidates", icon: Users },
   { label: "Teachers", to: "/admin/teachers", icon: Users },
-  { label: "Evaluate", to: "/admin/section/evaluate", icon: FileText, badge: "2" },
+  { label: "Evaluate", to: "/admin/section/evaluate", icon: FileText },
   { label: "Reports", to: "/admin/section/reports", icon: FileText },
   { label: "Notifications", to: "/admin/notifications", icon: Bell },
   { label: "Notification Templates", to: "/admin/notification-templates", icon: Mail },
@@ -143,6 +147,16 @@ interface AppShellProps {
 }
 
 const HELP_SUPPORT_PATHS = ["/admin/help-center", "/admin/support-tickets"];
+
+function formatBadgeCount(value: number): string {
+  return value > 99 ? "99+" : String(value);
+}
+
+function toTimestamp(value: string | null | undefined): number {
+  if (!value) return 0;
+  const ts = Date.parse(value);
+  return Number.isFinite(ts) ? ts : 0;
+}
 
 const SidebarNav = ({
   items,
@@ -245,6 +259,9 @@ export default function AppShell({ children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const searchPlaceholder = "Search exams, candidates, teachers...";
+  const currentUser = getStoredUser();
+  // Teacher sees only approved nav; admin sees full nav. Governance: Admin = final authority.
+  const isTeacherOnly = currentUser?.role?.toLowerCase() === "teacher";
 
   const location = useLocation();
   const isOnHelpSupportPath = useMemo(
@@ -261,10 +278,49 @@ export default function AppShell({ children }: AppShellProps) {
 
   const handleHelpSupportToggle = () => setHelpSupportOpen((prev) => !prev);
 
-  const currentUser = getStoredUser();
-  // Teacher sees only approved nav; admin sees full nav. Governance: Admin = final authority.
-  const isTeacherOnly = currentUser?.role?.toLowerCase() === "teacher";
-  const navItems = isTeacherOnly ? teacherNav : primaryNav;
+  const { data: evaluateDashboard } = useQuery({
+    queryKey: ["admin", "evaluate", "dashboard", "app-shell"],
+    queryFn: getEvaluateDashboard,
+    enabled: !isTeacherOnly,
+    staleTime: 30_000,
+  });
+
+  const {
+    data: notificationRows = [],
+    isLoading: notificationsLoading,
+    isError: notificationsError,
+  } = useQuery({
+    queryKey: ["admin", "notifications", "app-shell"],
+    queryFn: () => listNotifications(),
+    staleTime: 30_000,
+  });
+
+  const evaluatePendingCount = evaluateDashboard?.reviewQueue.pending ?? 0;
+
+  const notificationUnreadCount = useMemo(
+    () =>
+      notificationRows.reduce((sum, item) => {
+        if (!item.channels.includes("in-app")) return sum;
+        return sum + Math.max(0, item.targetEstimate - item.metrics.delivered);
+      }, 0),
+    [notificationRows]
+  );
+
+  const recentNotifications = useMemo(() => {
+    return [...notificationRows]
+      .sort((a, b) => toTimestamp(b.updatedAt || b.createdAt) - toTimestamp(a.updatedAt || a.createdAt))
+      .slice(0, 5);
+  }, [notificationRows]);
+
+  const navItems = useMemo<NavItem[]>(() => {
+    if (isTeacherOnly) return teacherNav;
+    const evaluateBadge = evaluatePendingCount > 0 ? formatBadgeCount(evaluatePendingCount) : undefined;
+    return primaryNav.map((item) =>
+      !isNavGroup(item) && item.label === "Evaluate"
+        ? { ...item, badge: evaluateBadge }
+        : item
+    );
+  }, [evaluatePendingCount, isTeacherOnly]);
 
   const handleLogout = () => {
     // WHY: Use auth-api logout to clear JWT + all legacy flags
@@ -313,10 +369,45 @@ export default function AppShell({ children }: AppShellProps) {
           </label>
 
           <div className="admin-top-actions">
-            <button className="admin-bell-btn" aria-label="Notifications">
-              <Bell className="h-5 w-5" />
-              <span className="admin-dot">2</span>
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="admin-bell-btn" aria-label="Notifications" type="button">
+                  <Bell className="h-5 w-5" />
+                  {notificationUnreadCount > 0 ? (
+                    <span className="admin-dot">{formatBadgeCount(notificationUnreadCount)}</span>
+                  ) : null}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    navigate("/admin/notifications");
+                  }}
+                >
+                  Open notifications center
+                </DropdownMenuItem>
+                {notificationsLoading ? (
+                  <DropdownMenuItem disabled>Loading recent notifications...</DropdownMenuItem>
+                ) : notificationsError ? (
+                  <DropdownMenuItem disabled>Unable to load recent notifications.</DropdownMenuItem>
+                ) : recentNotifications.length === 0 ? (
+                  <DropdownMenuItem disabled>No notifications yet.</DropdownMenuItem>
+                ) : (
+                  recentNotifications.map((item: NotificationItem) => (
+                    <DropdownMenuItem
+                      key={item.id}
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        navigate(`/admin/notifications/${item.id}`);
+                      }}
+                    >
+                      <span className="truncate">{item.subject || "Untitled notification"} · {item.status}</span>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <button
               className="admin-bell-btn"
               aria-label="Help"
@@ -359,4 +450,3 @@ export default function AppShell({ children }: AppShellProps) {
     </div>
   );
 }
-

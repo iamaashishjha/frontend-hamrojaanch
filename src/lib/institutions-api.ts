@@ -1,7 +1,7 @@
 /**
  * P2: Tenant and Institution admin API (list, create, update).
  */
-import { get, post, patch } from "@/lib/apiClient";
+import { del, get, post, patch } from "@/lib/apiClient";
 
 export interface Tenant {
   id: string;
@@ -34,6 +34,18 @@ export async function createTenant(data: { name: string; slug: string; isActive?
     isActive: data.isActive ?? true,
   });
   return tenant;
+}
+
+export async function updateTenant(
+  id: string,
+  data: { name?: string; slug?: string; isActive?: boolean }
+): Promise<Tenant> {
+  const { tenant } = await patch<{ tenant: Tenant }>(`/admin/tenants/${id}`, data);
+  return tenant;
+}
+
+export async function deleteTenant(id: string): Promise<void> {
+  await del(`/admin/tenants/${id}`);
 }
 
 export async function listInstitutions(tenantId?: string): Promise<Institution[]> {

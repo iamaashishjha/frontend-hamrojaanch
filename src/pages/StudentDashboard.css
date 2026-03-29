@@ -91,8 +91,12 @@
   display: grid;
   place-items: center;
   border-radius: 8px;
+  border: 0;
+  background: transparent;
+  padding: 0;
   color: var(--sd-text-muted);
   text-decoration: none;
+  cursor: pointer;
   transition: color 0.15s, background 0.15s;
 }
 

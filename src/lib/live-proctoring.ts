@@ -1,3 +1,4 @@
+import { runtimeConfig } from "@/config/runtime";
 import { get } from "@/lib/apiClient";
 
 type SignalingRole = "publisher" | "viewer";
@@ -42,10 +43,8 @@ const safeParse = (value: string): ServerMessage | null => {
 };
 
 const getSignalUrls = () => {
-  const wsUrl = (import.meta.env.VITE_SIGNALING_URL as string | undefined) ?? DEFAULT_SIGNALING_WS;
-  const httpBase =
-    (import.meta.env.VITE_SIGNALING_HTTP_URL as string | undefined) ??
-    wsUrl.replace(/^ws/, "http").replace(/\/ws$/, "");
+  const wsUrl = runtimeConfig.signalingWsUrl || DEFAULT_SIGNALING_WS;
+  const httpBase = runtimeConfig.signalingHttpUrl || (wsUrl.endsWith("/ws") ? wsUrl.replace(/^ws/i, "http").slice(0, -3) : wsUrl.replace(/^ws/i, "http"));
   return { wsUrl, httpBase };
 };
 
@@ -68,7 +67,7 @@ async function fetchToken(params: {
   examId: string;
   attemptId: string;
 }): Promise<TokenResponse> {
-  const apiBase = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
+  const apiBase = runtimeConfig.apiBaseUrl;
   if (!apiBase) {
     throw new Error("VITE_API_BASE_URL is required for signaling token issuance.");
   }

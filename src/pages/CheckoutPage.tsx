@@ -15,12 +15,36 @@ import LogoMark from "@/components/LogoMark";
 import BrandText from "@/components/BrandText";
 import { useSiteSettings } from "@/components/SiteSettingsProvider";
 import { getExam } from "@/lib/exams-module-api";
-import { confirmPayment, createOrder, createPaymentIntent, validateCoupon } from "@/lib/payments-api";
+import {
+  confirmPayment,
+  createOrder,
+  createPaymentIntent,
+  validateCoupon,
+  verifyEsewaPaymentIntent,
+} from "@/lib/payments-api";
 import { paymentProviders } from "@/lib/payments-providers";
 import { useExamSession } from "@/hooks/useExamSession";
 import type { AdminExam } from "@/lib/exams-module-types";
 import type { PaymentProvider } from "@/lib/payments-types";
 import "./CheckoutPage.css";
+
+function submitRedirectForm(actionUrl: string, fields: Record<string, string>) {
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = actionUrl;
+  form.style.display = "none";
+
+  Object.entries(fields).forEach(([name, value]) => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = String(value);
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+}
 
 export default function CheckoutPage() {
   const [searchParams] = useSearchParams();
@@ -39,6 +63,9 @@ export default function CheckoutPage() {
     ? "Open Ticket"
     : "Contact Support";
   const examId = searchParams.get("examId");
+  const paymentStatus = searchParams.get("payment");
+  const paymentProvider = searchParams.get("provider");
+  const paymentIntentId = searchParams.get("intentId");
   const [selectedExam, setSelectedExam] = useState<AdminExam | null>(null);
   const [loading, setLoading] = useState(Boolean(examId));
   const [errorMessage, setErrorMessage] = useState("");
@@ -53,6 +80,39 @@ export default function CheckoutPage() {
   const [promoApplying, setPromoApplying] = useState(false);
   const primaryCtaRef = useRef<HTMLButtonElement | null>(null);
   const emailInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!examId || paymentProvider !== "esewa") return;
+
+    if (paymentStatus === "failed") {
+      setErrorMessage("eSewa payment failed or was cancelled. Please try again.");
+      return;
+    }
+
+    if (paymentStatus === "pending") {
+      setErrorMessage("eSewa payment is still pending. Please wait and retry in a moment.");
+      return;
+    }
+
+    if (paymentStatus === "success" && paymentIntentId) {
+      setProcessing(true);
+      setErrorMessage("");
+      void verifyEsewaPaymentIntent(paymentIntentId)
+        .then((result) => {
+          const finalExamId = result.examId ?? examId;
+          if (!finalExamId) {
+            setErrorMessage("Payment succeeded, but exam could not be resolved.");
+            return;
+          }
+          update({ examId: finalExamId });
+          navigate(`/system-check?examId=${finalExamId}`, { replace: true });
+        })
+        .catch((error) => {
+          setErrorMessage(error instanceof Error ? error.message : "Unable to verify eSewa payment.");
+        })
+        .finally(() => setProcessing(false));
+    }
+  }, [examId, navigate, paymentIntentId, paymentProvider, paymentStatus, update]);
 
   useEffect(() => {
     const load = async () => {
@@ -80,7 +140,7 @@ export default function CheckoutPage() {
       }
     };
     void load();
-  }, [examId, navigate]);
+  }, [examId, navigate, paymentProvider, paymentStatus]);
 
   const pricingLabel = useMemo(() => {
     if (!selectedExam) return "Free";
@@ -178,6 +238,14 @@ export default function CheckoutPage() {
           orderId: order.id,
           provider: selectedProvider,
         });
+        if (selectedProvider === "esewa") {
+          if (intent.nextAction?.type === "redirect_form" && intent.nextAction.provider === "esewa") {
+            update({ examId: selectedExam.id, email: buyerEmail.trim() });
+            submitRedirectForm(intent.nextAction.url, intent.nextAction.fields);
+            return;
+          }
+          throw new Error("Unable to initiate eSewa checkout.");
+        }
         await confirmPayment(intent.id);
       }
       update({ examId: selectedExam.id, email: buyerEmail.trim() });
@@ -536,5 +604,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-
-
